@@ -1,0 +1,30 @@
+{{- $fullname := include "spark-history-server.fullname" . -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ $fullname }}
+spec:
+  workloadSelector:
+    labels:
+      app.kubernetes.io/name: {{ include "spark-history-server.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+            subFilter:
+              name: "envoy.filters.http.router"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+       name: envoy.lua
+       typed_config:
+         "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+         inlineCode: |
+            function envoy_on_response(response_handle, context)
+                response_handle:headers():replace("location", "SomethingElseToFixTheWrongRedirectionByEnvoyFilter");
+            end

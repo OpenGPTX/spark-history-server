@@ -1,0 +1,52 @@
+replicaCount: 1
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  name: default-editor
+
+image:
+  repository: public.ecr.aws/atcommons/sparkhistoryserver
+  tag: "14469"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port:
+    number: 18080
+    name: http # Important for Istio EnvoyFilter!
+  annotations: {}
+
+ingress: # Istio
+  enabled: true
+
+s3:
+  enableS3: true
+  bucket: at-plural-sh-at-onplural-sh-kubeflow-pipelines
+
+podAnnotations: {}
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+imagePullSecrets: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+environment:
+# Note: do not configure Spark history events directory using SPARK_HISTORY_OPTS. It will be
+# configured by this chart based on the values in "pvc", "gcs" or "hdfs" attribute.
+  # SPARK_HISTORY_OPTS: ...
+  # SPARK_DAEMON_MEMORY: 1g
+  # SPARK_DAEMON_JAVA_OPTS: ...
+  # SPARK_DAEMON_CLASSPATH: ...
+  # SPARK_PUBLIC_DNS: ...

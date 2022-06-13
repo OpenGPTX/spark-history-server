@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "spark-history-server.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "spark-history-server.name" . }}
+    helm.sh/chart: {{ include "spark-history-server.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "spark-history-server.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "spark-history-server.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Values.podAnnotations }}
+      annotations:
+{{ toYaml .Values.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      serviceAccountName: {{ include "spark-history-server.serviceAccountName" . }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: SPARK_NO_DAEMONIZE
+          value: "false"
+        ports:
+        - name: historyport
+          containerPort: 18080
+          protocol: TCP
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        command:
+        - "/bin/sh"
+        - "-c"
+        - >
+          export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS \
+            -Dspark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+            -Dspark.ui.proxyBase=/sparkhistory/{{ .Release.Namespace }} \
+            -Dspark.ui.reverseProxy=true \
+            -Dspark.ui.reverseProxyUrl=https://kubeflow.at.onplural.sh/sparkhistory/{{ .Release.Namespace }} \
+            -Dspark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider \
+            -Dspark.history.fs.logDirectory=s3a://{{ .Values.s3.bucket }}/pipelines/{{ .Release.Namespace }}/history";
+          /opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer;

@@ -1,0 +1,30 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullname := include "spark-history-server.fullname" . -}}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ $fullname }}
+  labels:
+    app.kubernetes.io/name: {{ include "spark-history-server.name" . }}
+    helm.sh/chart: {{ include "spark-history-server.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  gateways:
+  - kubeflow/kubeflow-gateway
+  hosts:
+  - '*'
+  http:
+  - match:
+    - uri:
+        prefix: "/sparkhistory/{{ .Release.Namespace }}/"
+    - uri:
+        prefix: "/sparkhistory/{{ .Release.Namespace }}"
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        host: "{{ $fullname }}.{{ .Release.Namespace }}.svc.cluster.local"
+        port:
+          number: {{ .Values.service.port.number }}
+{{- end -}}
