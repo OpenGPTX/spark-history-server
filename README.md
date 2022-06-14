@@ -47,7 +47,7 @@ Another important point is to mention a redirect bug of the spark-history-server
 
 The reason for building a new Dockerimage is to grant spark accordingly.
 
-- We can reuse the spark base image from https://github.com/OpenGPTX/docker-images/tree/main/spark/base
+- We can reuse the spark base image from our [pipeline](https://github.com/OpenGPTX/docker-images/tree/main/spark/base) 
 - `public.ecr.aws/atcommons/spark/python:14469` is a spark version 3.2.1
 - Adjust Dockerfile
 - Build Dockerimage:
@@ -74,7 +74,7 @@ In general all values in values.yaml are important and are described with commen
 Be sure `s3://at-plural-sh-at-onplural-sh-kubeflow-pipelines/pipelines/tim-krause/history` (according bucket and according namespace) folder (so the folder `/history`) exists. Otherwise create it beforehand.
 
 - Adjust the according namespace `tim-krause`
-- Adjust the according bucket at-plural-sh-at-onplural-sh-kubeflow-pipelines (as of now it is KF6)
+- Adjust the according bucket `at-plural-sh-at-onplural-sh-kubeflow-pipelines` (as of now it is KF6)
 ```
 helm upgrade --install history --namespace tim-krause ./ --set s3.bucket="at-plural-sh-at-onplural-sh-kubeflow-pipelines"
 ```
