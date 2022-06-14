@@ -43,9 +43,11 @@ spec:
         - >
           export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS \
             -Dspark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+            -Dspark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider \
+            -Dspark.history.fs.logDirectory=s3a://{{ .Values.s3.bucket }}/pipelines/{{ .Release.Namespace }}/history \
             -Dspark.ui.proxyBase=/sparkhistory/{{ .Release.Namespace }} \
             -Dspark.ui.reverseProxy=true \
             -Dspark.ui.reverseProxyUrl=https://kubeflow.at.onplural.sh/sparkhistory/{{ .Release.Namespace }} \
-            -Dspark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.WebIdentityTokenCredentialsProvider \
-            -Dspark.history.fs.logDirectory=s3a://{{ .Values.s3.bucket }}/pipelines/{{ .Release.Namespace }}/history";
+            -Dspark.history.fs.cleaner.enabled={{ .Values.cleaner.enabled }} \
+            -Dspark.history.fs.cleaner.maxAge={{ .Values.cleaner.maxAge }}";
           /opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer;

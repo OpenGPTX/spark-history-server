@@ -2,6 +2,7 @@ replicaCount: 1
 nameOverride: ""
 fullnameOverride: ""
 
+# Important for IRSA
 serviceAccount:
   name: default-editor
 
@@ -17,14 +18,19 @@ service:
     name: http # Important for Istio EnvoyFilter!
   annotations: {}
 
-ingress: # Istio
+# Istio VirtualService
+ingress:
   enabled: true
 
+# Bucket where the spark logs are stored
 s3:
   enableS3: true
   bucket: at-plural-sh-at-onplural-sh-kubeflow-pipelines
 
-podAnnotations: {}
+# For logretention or rolling the spark logs:
+cleaner:
+  enabled: true
+  maxAge: "30d"
 
 resources:
   limits:
@@ -33,6 +39,8 @@ resources:
   requests:
     cpu: 100m
     memory: 512Mi
+
+podAnnotations: {}
 
 imagePullSecrets: []
 
