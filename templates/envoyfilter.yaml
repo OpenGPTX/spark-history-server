@@ -26,5 +26,5 @@ spec:
          "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
          inlineCode: |
             function envoy_on_response(response_handle, context)
-                response_handle:headers():replace("location", "SomethingElseToFixTheWrongRedirectionByEnvoyFilter");
+                response_handle:headers():replace("location", "");
             end
