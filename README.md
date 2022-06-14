@@ -7,7 +7,7 @@ This helmchart is more or less just a workaround. The idea is to make a K8s oper
 The idea is to reuse as much as possible from the plural kubeflow distribution.
 
 - First of all, every user gets his/her own spark-history-server instance with a dedicated url.
-- Every user gets automatically though the plural kubeflow distribution the folder `s3://at-plural-sh-at-onplural-sh-kubeflow-pipelines/pipelines/tim-krause/` with according permissions. We just add a folder `/history` at the end, to store and read the spark logs there.
+- Every user gets automatically through the plural kubeflow distribution the folder `s3://at-plural-sh-at-onplural-sh-kubeflow-pipelines/pipelines/tim-krause/` with according permissions. We just add a folder `/history` at the end, to store and read the spark logs there.
 - IRSA permissions are already very well integrated.
 - Using the bucket instead of a PVC, the spark apps (pushing logs onto) and the spark-history-server (reading the logs from) are better decoupled. S3-like storage is normally available everywhere.
 - Authentication/autorization is handled via Istio. The URL for the different spark-history-servers are seperated via a prefix. `https://kubeflow.at.onplural.sh/sparkhistory/<user-namespace>/` e.g. `https://kubeflow.at.onplural.sh/sparkhistory/tim-krause/`.
